@@ -101,7 +101,7 @@ class CalendarRowCell extends StatelessWidget {
     this.backgroundColor, {
     this.isSelected = false,
     this.isOnRowOfDates = true,
-    this.isDisplayedAsSchedule = false,
+    this.isDisplayedAsSchedule = true,
   });
 
   @required
@@ -142,7 +142,7 @@ class CalendarRowCell extends StatelessWidget {
               text,
               style: TextStyle(
                 color: isSelected
-                    ? (isDisplayedAsSchedule ? Colors.black : Colors.blue[300])
+                    ? (isDisplayedAsSchedule ? Colors.white : Colors.blue[300])
                     : Colors.black,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
