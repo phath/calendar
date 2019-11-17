@@ -1,7 +1,8 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:calendar/calendar.dart';
+import 'package:calendar/calendar_row.dart';
 import 'package:calendar/constants.dart';
+import 'package:calendar/model.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,11 +18,13 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: Text("calendar")),
         body: SingleChildScrollView(
           child: Calendar(
-            10,
-            //DateTime(2019, 11, 27),
-            DateTime.now(),
-            isStartDate: true,
-            padding: 5.0,
+            5,
+            DateTime(2019, 11, 17),
+            selectedDates: List.generate(
+                    3, (i) => DateTime(2019, 11, 19).add(Duration(days: 7 * i)))
+                .toList(),
+            isStartDate: false,
+            padding: 0.0,
             border: 0.0,
           ),
         ),
@@ -34,6 +37,7 @@ class Calendar extends StatelessWidget {
   Calendar(
     int this.nRows,
     this.startDate, {
+    this.selectedDates = const [],
     this.border = 2.0,
     this.padding = 0.0,
     this.isStartDate = false,
@@ -46,6 +50,7 @@ class Calendar extends StatelessWidget {
   final Map<int, String> headerMap;
   final double border;
   final double padding;
+  final List<DateTime> selectedDates;
 
   List<List<DateTime>> _getAllDates() {
     DateTime _lastSunday =
@@ -65,20 +70,6 @@ class Calendar extends StatelessWidget {
 
   DateTime _lookForLastMonday(DateTime date) {
     return date.subtract(Duration(days: date.weekday - 1));
-  }
-
-  List<String> _getHeaderList() {
-    return isStartDate
-        ? List.generate(7, (int index) => index)
-            .map(
-              (e) => startDate.add(
-                Duration(days: e),
-              ),
-            )
-            .toList()
-            .map((e) => headerMap[e.weekday])
-            .toList()
-        : headerMap.values.toList();
   }
 
   @override
@@ -121,7 +112,13 @@ class Calendar extends StatelessWidget {
     Map<int, Map<int, bool>> indices = _getIndicesForMonthRow(listDates);
     List<Widget> rows = listDates
         .map(
-          (l) => CalendarRow(l),
+          (l) => CalendarRow(l
+              .map((d) => Date(
+                  d,
+                  selectedDates.indexWhere((e) => d.isAtSameMomentAs(e)) >= 0
+                      ? true
+                      : false))
+              .toList()),
         )
         .toList();
     int duplicateCount = 0;
@@ -135,7 +132,11 @@ class Calendar extends StatelessWidget {
                             rows.elementAt(k + duplicateCount)),
                         rows.insert(
                             k + duplicateCount + 1,
-                            CalendarRow(listDates.elementAt(k),
+                            CalendarRow(
+                                listDates
+                                    .elementAt(k)
+                                    .map((d) => Date(d, false))
+                                    .toList(),
                                 isDateList: false)),
                         duplicateCount += 2,
                       }
@@ -144,7 +145,11 @@ class Calendar extends StatelessWidget {
                         duplicateCount += 1,
                         rows.insert(
                             k + duplicateCount,
-                            CalendarRow(listDates.elementAt(k),
+                            CalendarRow(
+                                listDates
+                                    .elementAt(k)
+                                    .map((d) => Date(d, false))
+                                    .toList(),
                                 isDateList: false)),
                       }
                   }
@@ -153,11 +158,10 @@ class Calendar extends StatelessWidget {
     rows.insert(
       0,
       CalendarHeaderRow(
-        listDates.elementAt(0),
+        listDates.elementAt(0).map((d) => Date(d, false)).toList(),
         backgroundColor: Colors.grey[300],
       ),
     );
-    //return nRows <= 3 ? rows.getRange(0, nRows + 1).toList() : rows;
-    return rows;
+    return nRows <= 3 ? rows.getRange(0, nRows + 1).toList() : rows;
   }
 }
