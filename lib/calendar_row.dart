@@ -8,12 +8,18 @@ class CalendarRow extends StatelessWidget {
     this.backgroundColor = Colors.white,
     this.isDateList = true,
     this.rowHeight = 50.0,
+    this.isBeforeMonthRow = false,
+    this.isAfterMonthRow = false,
+    this.weekendTextColor = Colors.grey,
   });
   @required
   final List<Date> dates;
   final Color backgroundColor;
   final bool isDateList;
   final double rowHeight;
+  final bool isBeforeMonthRow;
+  final bool isAfterMonthRow;
+  final Color weekendTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +35,23 @@ class CalendarRow extends StatelessWidget {
   List<Widget> _getCalendarRow() {
     return isDateList
         ? dates
-            .map(
-              (d) => Expanded(
-                child: CalendarRowCell(
-                  d.date.day.toString(),
-                  backgroundColor,
-                  isOnRowOfDates: isDateList,
-                  isSelected: d.isSelected,
-                ),
-              ),
-            )
+            .map((d) => Expanded(
+                  child: CalendarRowCell(
+                    d.date.day.toString(),
+                    backgroundColor,
+                    isOnRowOfDates: isDateList,
+                    isSelected: d.isSelected,
+                    isDisable: (isBeforeMonthRow || isAfterMonthRow)
+                        ? ((isBeforeMonthRow && d.date.day < 10) ||
+                                (isAfterMonthRow && d.date.day > 20)
+                            ? true
+                            : false)
+                        : false,
+                    dateTextColor: d.date.weekday == 7 || d.date.weekday == 6
+                        ? weekendTextColor
+                        : Colors.black,
+                  ),
+                ))
             .toList()
         : <Widget>[
             Expanded(
@@ -66,12 +79,14 @@ class CalendarHeaderRow extends CalendarRow {
     this.backgroundColor = Colors.grey,
     this.isDateList = false,
     this.rowHeight = 50.0,
+    this.weekendTextColor = Colors.black,
   }) : super(dates);
   @required
   final List<Date> dates;
   final Color backgroundColor;
   final bool isDateList;
   final double rowHeight;
+  final Color weekendTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +101,9 @@ class CalendarHeaderRow extends CalendarRow {
                   koreanHeaderMap[d.date.weekday],
                   backgroundColor,
                   isOnRowOfDates: false,
+                  dateTextColor: d.date.weekday == 6 || d.date.weekday == 7
+                      ? weekendTextColor
+                      : Colors.black,
                 ),
               ),
             )
@@ -99,18 +117,22 @@ class CalendarRowCell extends StatelessWidget {
   CalendarRowCell(
     this.text,
     this.backgroundColor, {
+    this.isDisable = false,
     this.isSelected = false,
     this.isOnRowOfDates = true,
-    this.isDisplayedAsSchedule = true,
+    this.isDisplayedAsSchedule = false,
+    this.dateTextColor = Colors.black,
   });
 
   @required
   final String text;
   @required
   final Color backgroundColor;
+  final bool isDisable;
   final bool isSelected;
   final bool isOnRowOfDates;
   final bool isDisplayedAsSchedule;
+  final Color dateTextColor;
   static const double paddingSelectedCircle = 5.0;
 
   @override
@@ -118,38 +140,47 @@ class CalendarRowCell extends StatelessWidget {
     return SizedBox(
       height: double.infinity,
       width: double.infinity,
-      child: Container(
-        padding: EdgeInsets.all(paddingSelectedCircle),
-        color: backgroundColor,
-        child: Container(
-          decoration: isOnRowOfDates
-              ? BoxDecoration(
-                  border: Border.all(
-                    width: 1.0,
-                    color: isSelected ? Colors.blue : backgroundColor,
+      child: isDisable
+          ? Container(
+              color: backgroundColor,
+            )
+          : Container(
+              padding: EdgeInsets.all(paddingSelectedCircle),
+              color: backgroundColor,
+              child: Container(
+                decoration: isOnRowOfDates
+                    ? BoxDecoration(
+                        border: Border.all(
+                          width: 1.0,
+                          color: isSelected ? Colors.blue : backgroundColor,
+                        ),
+                        color: isSelected
+                            ? (isDisplayedAsSchedule
+                                ? Colors.blue
+                                : Colors.blue[50])
+                            : backgroundColor,
+                        shape: BoxShape.circle,
+                      )
+                    : BoxDecoration(
+                        color: backgroundColor,
+                      ),
+                alignment: Alignment.center,
+                child: Container(
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      color: isSelected
+                          ? (isDisplayedAsSchedule
+                              ? Colors.white
+                              : Colors.blue[300])
+                          : dateTextColor,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
-                  color: isSelected
-                      ? (isDisplayedAsSchedule ? Colors.blue : Colors.blue[50])
-                      : backgroundColor,
-                  shape: BoxShape.circle,
-                )
-              : BoxDecoration(
-                  color: backgroundColor,
                 ),
-          alignment: Alignment.center,
-          child: Container(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: isSelected
-                    ? (isDisplayedAsSchedule ? Colors.white : Colors.blue[300])
-                    : Colors.black,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

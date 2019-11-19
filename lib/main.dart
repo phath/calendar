@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: Text("calendar")),
         body: SingleChildScrollView(
           child: Calendar(
-            5,
+            15,
             DateTime(2019, 11, 17),
             selectedDates: List.generate(
                     3, (i) => DateTime(2019, 11, 19).add(Duration(days: 7 * i)))
@@ -34,15 +34,13 @@ class MyApp extends StatelessWidget {
 }
 
 class Calendar extends StatelessWidget {
-  Calendar(
-    int this.nRows,
-    this.startDate, {
-    this.selectedDates = const [],
-    this.border = 2.0,
-    this.padding = 0.0,
-    this.isStartDate = false,
-    this.headerMap = koreanHeaderMap,
-  });
+  Calendar(int this.nRows, this.startDate,
+      {this.selectedDates = const [],
+      this.border = 2.0,
+      this.padding = 0.0,
+      this.isStartDate = false,
+      this.headerMap = koreanHeaderMap,
+      this.weekendTextColor = Colors.grey});
   @required
   final int nRows;
   final DateTime startDate;
@@ -51,6 +49,7 @@ class Calendar extends StatelessWidget {
   final double border;
   final double padding;
   final List<DateTime> selectedDates;
+  final Color weekendTextColor;
 
   List<List<DateTime>> _getAllDates() {
     DateTime _lastSunday =
@@ -111,15 +110,28 @@ class Calendar extends StatelessWidget {
     List<List<DateTime>> listDates = _getAllDates();
     Map<int, Map<int, bool>> indices = _getIndicesForMonthRow(listDates);
     List<Widget> rows = listDates
+        .asMap()
         .map(
-          (l) => CalendarRow(l
-              .map((d) => Date(
-                  d,
-                  selectedDates.indexWhere((e) => d.isAtSameMomentAs(e)) >= 0
+          (i, l) => MapEntry(
+            i,
+            CalendarRow(
+              l
+                  .map((d) => Date(
+                      d,
+                      selectedDates.indexWhere((e) => d.isAtSameMomentAs(e)) >=
+                              0
+                          ? true
+                          : false))
+                  .toList(),
+              isBeforeMonthRow:
+                  indices.keys.toList().indexWhere((idx) => idx == i) >= 0
                       ? true
-                      : false))
-              .toList()),
+                      : false,
+              weekendTextColor: weekendTextColor,
+            ),
+          ),
         )
+        .values
         .toList();
     int duplicateCount = 0;
     indices.keys.toList().asMap().forEach(
@@ -128,29 +140,41 @@ class Calendar extends StatelessWidget {
                   {
                     if (isDuplicate)
                       {
-                        rows.insert(k + duplicateCount,
-                            rows.elementAt(k + duplicateCount)),
+                        duplicateCount += 1,
                         rows.insert(
-                            k + duplicateCount + 1,
-                            CalendarRow(
-                                listDates
-                                    .elementAt(k)
-                                    .map((d) => Date(d, false))
-                                    .toList(),
-                                isDateList: false)),
-                        duplicateCount += 2,
+                          k + duplicateCount,
+                          CalendarRow(
+                              listDates
+                                  .elementAt(k)
+                                  .map((d) => Date(d, false))
+                                  .toList(),
+                              isDateList: true,
+                              isAfterMonthRow: true),
+                        ),
+                        rows.insert(
+                          k + duplicateCount,
+                          CalendarRow(
+                              listDates
+                                  .elementAt(k)
+                                  .map((d) => Date(d, false))
+                                  .toList(),
+                              isDateList: false),
+                        ),
+                        duplicateCount += 1,
                       }
                     else
                       {
                         duplicateCount += 1,
                         rows.insert(
-                            k + duplicateCount,
-                            CalendarRow(
-                                listDates
-                                    .elementAt(k)
-                                    .map((d) => Date(d, false))
-                                    .toList(),
-                                isDateList: false)),
+                          k + duplicateCount,
+                          CalendarRow(
+                              listDates
+                                  .elementAt(k)
+                                  .map((d) => Date(d, false))
+                                  .toList(),
+                              isDateList: false,
+                              isAfterMonthRow: false),
+                        ),
                       }
                   }
               }),
@@ -160,6 +184,7 @@ class Calendar extends StatelessWidget {
       CalendarHeaderRow(
         listDates.elementAt(0).map((d) => Date(d, false)).toList(),
         backgroundColor: Colors.grey[300],
+        weekendTextColor: weekendTextColor,
       ),
     );
     return nRows <= 3 ? rows.getRange(0, nRows + 1).toList() : rows;
