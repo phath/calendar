@@ -11,6 +11,11 @@ class CalendarRow extends StatelessWidget {
     this.isBeforeMonthRow = false,
     this.isAfterMonthRow = false,
     this.weekendTextColor = Colors.grey,
+    this.isGreyOutBerforeToday = false,
+    this.selectedCellBoxShape = BoxShape.rectangle,
+    this.selectedTextColor = Colors.white,
+    this.selectedCenterColor = Colors.blue,
+    this.selectedBorderColor = Colors.blue,
   });
   @required
   final List<Date> dates;
@@ -19,6 +24,11 @@ class CalendarRow extends StatelessWidget {
   final double rowHeight;
   final bool isBeforeMonthRow;
   final bool isAfterMonthRow;
+  final bool isGreyOutBerforeToday;
+  final BoxShape selectedCellBoxShape;
+  final Color selectedBorderColor;
+  final Color selectedCenterColor;
+  final Color selectedTextColor;
   final Color weekendTextColor;
 
   @override
@@ -33,6 +43,7 @@ class CalendarRow extends StatelessWidget {
   }
 
   List<Widget> _getCalendarRow() {
+    DateTime nw = DateTime.now();
     return isDateList
         ? dates
             .map((d) => Expanded(
@@ -47,9 +58,17 @@ class CalendarRow extends StatelessWidget {
                             ? true
                             : false)
                         : false,
-                    dateTextColor: d.date.weekday == 7 || d.date.weekday == 6
+                    dateTextColor: (d.date.weekday == 7 || d.date.weekday == 6)
                         ? weekendTextColor
-                        : Colors.black,
+                        : (isGreyOutBerforeToday &&
+                                d.date.isBefore(
+                                    DateTime(nw.year, nw.month, nw.day))
+                            ? Colors.grey
+                            : defaultTextColor),
+                    selectedBoxShape: selectedCellBoxShape,
+                    selectedTextColor: selectedTextColor,
+                    selectedBorderColor: selectedBorderColor,
+                    selectedCenterColor: selectedCenterColor,
                   ),
                 ))
             .toList()
@@ -79,7 +98,8 @@ class CalendarHeaderRow extends CalendarRow {
     this.backgroundColor = Colors.grey,
     this.isDateList = false,
     this.rowHeight = 50.0,
-    this.weekendTextColor = Colors.black,
+    this.weekendTextColor = defaultTextColor,
+    this.headerMap = koreanHeaderMap,
   }) : super(dates);
   @required
   final List<Date> dates;
@@ -87,6 +107,7 @@ class CalendarHeaderRow extends CalendarRow {
   final bool isDateList;
   final double rowHeight;
   final Color weekendTextColor;
+  final Map<int, String> headerMap;
 
   @override
   Widget build(BuildContext context) {
@@ -98,12 +119,12 @@ class CalendarHeaderRow extends CalendarRow {
             .map(
               (d) => Expanded(
                 child: CalendarRowCell(
-                  koreanHeaderMap[d.date.weekday],
+                  headerMap[d.date.weekday],
                   backgroundColor,
                   isOnRowOfDates: false,
                   dateTextColor: d.date.weekday == 6 || d.date.weekday == 7
                       ? weekendTextColor
-                      : Colors.black,
+                      : defaultTextColor,
                 ),
               ),
             )
@@ -121,7 +142,12 @@ class CalendarRowCell extends StatelessWidget {
     this.isSelected = false,
     this.isOnRowOfDates = true,
     this.isDisplayedAsSchedule = false,
-    this.dateTextColor = Colors.black,
+    this.selectedBoxShape = BoxShape.circle,
+    this.selectedRectangleBoxShapeRadius = 5.0,
+    this.selectedBorderColor = Colors.blue,
+    this.selectedCenterColor = Colors.blue,
+    this.selectedTextColor = Colors.white,
+    this.dateTextColor = defaultTextColor,
   });
 
   @required
@@ -133,6 +159,11 @@ class CalendarRowCell extends StatelessWidget {
   final bool isOnRowOfDates;
   final bool isDisplayedAsSchedule;
   final Color dateTextColor;
+  final BoxShape selectedBoxShape;
+  final double selectedRectangleBoxShapeRadius;
+  final Color selectedBorderColor;
+  final Color selectedCenterColor;
+  final Color selectedTextColor;
   static const double paddingSelectedCircle = 5.0;
 
   @override
@@ -152,14 +183,17 @@ class CalendarRowCell extends StatelessWidget {
                     ? BoxDecoration(
                         border: Border.all(
                           width: 1.0,
-                          color: isSelected ? Colors.blue : backgroundColor,
+                          color: isSelected
+                              ? selectedBorderColor
+                              : backgroundColor,
                         ),
-                        color: isSelected
-                            ? (isDisplayedAsSchedule
-                                ? Colors.blue
-                                : Colors.blue[50])
-                            : backgroundColor,
-                        shape: BoxShape.circle,
+                        color:
+                            isSelected ? selectedCenterColor : backgroundColor,
+                        shape: selectedBoxShape ?? selectedBoxShape,
+                        borderRadius: selectedBoxShape == BoxShape.rectangle
+                            ? BorderRadius.all(Radius.circular(
+                                selectedRectangleBoxShapeRadius))
+                            : null,
                       )
                     : BoxDecoration(
                         color: backgroundColor,
@@ -169,11 +203,7 @@ class CalendarRowCell extends StatelessWidget {
                   child: Text(
                     text,
                     style: TextStyle(
-                      color: isSelected
-                          ? (isDisplayedAsSchedule
-                              ? Colors.white
-                              : Colors.blue[300])
-                          : dateTextColor,
+                      color: isSelected ? selectedTextColor : dateTextColor,
                       fontWeight:
                           isSelected ? FontWeight.bold : FontWeight.normal,
                     ),

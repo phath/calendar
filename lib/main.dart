@@ -18,14 +18,16 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: Text("calendar")),
         body: SingleChildScrollView(
           child: Calendar(
-            15,
-            DateTime(2019, 11, 17),
+            5,
+            DateTime(2019, 11, 19),
             selectedDates: List.generate(
                     3, (i) => DateTime(2019, 11, 19).add(Duration(days: 7 * i)))
                 .toList(),
             isStartDate: false,
-            padding: 0.0,
+            padding: 5.0,
             border: 0.0,
+            weekendTextColor: Colors.red[200],
+            isGreyOutBerforeToday: true,
           ),
         ),
       ),
@@ -34,17 +36,22 @@ class MyApp extends StatelessWidget {
 }
 
 class Calendar extends StatelessWidget {
-  Calendar(int this.nRows, this.startDate,
-      {this.selectedDates = const [],
-      this.border = 2.0,
-      this.padding = 0.0,
-      this.isStartDate = false,
-      this.headerMap = koreanHeaderMap,
-      this.weekendTextColor = Colors.grey});
+  Calendar(
+    int this.nRows,
+    this.startDate, {
+    this.selectedDates = const [],
+    this.border = 2.0,
+    this.padding = 0.0,
+    this.isStartDate = false,
+    this.headerMap = koreanHeaderMap,
+    this.weekendTextColor = Colors.grey,
+    this.isGreyOutBerforeToday = false,
+  });
   @required
   final int nRows;
   final DateTime startDate;
   final bool isStartDate;
+  final bool isGreyOutBerforeToday;
   final Map<int, String> headerMap;
   final double border;
   final double padding;
@@ -128,6 +135,7 @@ class Calendar extends StatelessWidget {
                       ? true
                       : false,
               weekendTextColor: weekendTextColor,
+              isGreyOutBerforeToday: isGreyOutBerforeToday,
             ),
           ),
         )
@@ -185,6 +193,7 @@ class Calendar extends StatelessWidget {
         listDates.elementAt(0).map((d) => Date(d, false)).toList(),
         backgroundColor: Colors.grey[300],
         weekendTextColor: weekendTextColor,
+        headerMap: headerMap,
       ),
     );
     return nRows <= 3 ? rows.getRange(0, nRows + 1).toList() : rows;

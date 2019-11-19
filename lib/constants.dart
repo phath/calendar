@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 const Map<int, String> koreanHeaderMap = {
   1: "월",
   2: "화",
@@ -17,3 +19,5 @@ const Map<int, String> englishHeaderMap = {
   6: "Sat",
   7: "Sun",
 };
+
+const defaultTextColor = Colors.black;
