@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
             border: 0.0,
             weekendTextColor: Colors.red[200],
             isGreyOutBerforeToday: true,
+            selectedCellBoxShape: BoxShape.circle,
           ),
         ),
       ),
@@ -46,6 +47,7 @@ class Calendar extends StatelessWidget {
     this.headerMap = koreanHeaderMap,
     this.weekendTextColor = Colors.grey,
     this.isGreyOutBerforeToday = false,
+    this.selectedCellBoxShape = BoxShape.circle,
   });
   @required
   final int nRows;
@@ -57,6 +59,7 @@ class Calendar extends StatelessWidget {
   final double padding;
   final List<DateTime> selectedDates;
   final Color weekendTextColor;
+  final BoxShape selectedCellBoxShape;
 
   List<List<DateTime>> _getAllDates() {
     DateTime _lastSunday =
@@ -136,6 +139,7 @@ class Calendar extends StatelessWidget {
                       : false,
               weekendTextColor: weekendTextColor,
               isGreyOutBerforeToday: isGreyOutBerforeToday,
+              selectedCellBoxShape: selectedCellBoxShape,
             ),
           ),
         )

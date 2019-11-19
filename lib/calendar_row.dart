@@ -12,7 +12,7 @@ class CalendarRow extends StatelessWidget {
     this.isAfterMonthRow = false,
     this.weekendTextColor = Colors.grey,
     this.isGreyOutBerforeToday = false,
-    this.selectedCellBoxShape = BoxShape.rectangle,
+    this.selectedCellBoxShape = BoxShape.circle,
     this.selectedTextColor = Colors.white,
     this.selectedCenterColor = Colors.blue,
     this.selectedBorderColor = Colors.blue,
