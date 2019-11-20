@@ -58,7 +58,7 @@ class CalendarRow extends StatelessWidget {
                             ? true
                             : false)
                         : false,
-                    dateTextColor: (d.date.weekday == 7 || d.date.weekday == 6)
+                    dateTextColor: (d.date.weekday == 6 || d.date.weekday == 7)
                         ? weekendTextColor
                         : (isGreyOutBerforeToday &&
                                 d.date.isBefore(

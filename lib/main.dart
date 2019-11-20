@@ -48,6 +48,8 @@ class Calendar extends StatelessWidget {
     this.weekendTextColor = Colors.grey,
     this.isGreyOutBerforeToday = false,
     this.selectedCellBoxShape = BoxShape.circle,
+    this.calendarRowHeight = 50.0,
+    this.calendarHeaderRowHeight = 50.0,
   });
   @required
   final int nRows;
@@ -60,6 +62,8 @@ class Calendar extends StatelessWidget {
   final List<DateTime> selectedDates;
   final Color weekendTextColor;
   final BoxShape selectedCellBoxShape;
+  final double calendarRowHeight;
+  final double calendarHeaderRowHeight;
 
   List<List<DateTime>> _getAllDates() {
     DateTime _lastSunday =
@@ -161,7 +165,10 @@ class Calendar extends StatelessWidget {
                                   .map((d) => Date(d, false))
                                   .toList(),
                               isDateList: true,
-                              isAfterMonthRow: true),
+                              isAfterMonthRow: true,
+                              isGreyOutBerforeToday: isGreyOutBerforeToday,
+                              selectedCellBoxShape: selectedCellBoxShape,
+                              weekendTextColor: weekendTextColor),
                         ),
                         rows.insert(
                           k + duplicateCount,
@@ -170,7 +177,10 @@ class Calendar extends StatelessWidget {
                                   .elementAt(k)
                                   .map((d) => Date(d, false))
                                   .toList(),
-                              isDateList: false),
+                              isGreyOutBerforeToday: isGreyOutBerforeToday,
+                              selectedCellBoxShape: selectedCellBoxShape,
+                              isDateList: false,
+                              weekendTextColor: weekendTextColor),
                         ),
                         duplicateCount += 1,
                       }
@@ -185,6 +195,9 @@ class Calendar extends StatelessWidget {
                                   .map((d) => Date(d, false))
                                   .toList(),
                               isDateList: false,
+                              weekendTextColor: weekendTextColor,
+                              isGreyOutBerforeToday: isGreyOutBerforeToday,
+                              selectedCellBoxShape: selectedCellBoxShape,
                               isAfterMonthRow: false),
                         ),
                       }
@@ -197,7 +210,7 @@ class Calendar extends StatelessWidget {
         listDates.elementAt(0).map((d) => Date(d, false)).toList(),
         backgroundColor: Colors.grey[300],
         weekendTextColor: weekendTextColor,
-        headerMap: headerMap,
+        rowHeight: calendarHeaderRowHeight,
       ),
     );
     return nRows <= 3 ? rows.getRange(0, nRows + 1).toList() : rows;
