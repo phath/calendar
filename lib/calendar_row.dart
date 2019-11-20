@@ -46,31 +46,37 @@ class CalendarRow extends StatelessWidget {
     DateTime nw = DateTime.now();
     return isDateList
         ? dates
-            .map((d) => Expanded(
-                  child: CalendarRowCell(
-                    d.date.day.toString(),
-                    backgroundColor,
-                    isOnRowOfDates: isDateList,
-                    isSelected: d.isSelected,
-                    isDisable: (isBeforeMonthRow || isAfterMonthRow)
-                        ? ((isBeforeMonthRow && d.date.day < 10) ||
-                                (isAfterMonthRow && d.date.day > 20)
-                            ? true
-                            : false)
-                        : false,
-                    dateTextColor: (d.date.weekday == 6 || d.date.weekday == 7)
-                        ? weekendTextColor
-                        : (isGreyOutBerforeToday &&
-                                d.date.isBefore(
-                                    DateTime(nw.year, nw.month, nw.day))
-                            ? Colors.grey
-                            : defaultTextColor),
-                    selectedBoxShape: selectedCellBoxShape,
-                    selectedTextColor: selectedTextColor,
-                    selectedBorderColor: selectedBorderColor,
-                    selectedCenterColor: selectedCenterColor,
-                  ),
-                ))
+            .map(
+              (d) => Expanded(
+                child: CalendarRowCell(
+                  d.date.day.toString(),
+                  backgroundColor,
+                  isOnRowOfDates: isDateList,
+                  isSelected: d.isSelected,
+                  isDisable: (isBeforeMonthRow || isAfterMonthRow)
+                      ? ((isBeforeMonthRow && d.date.day < 10) ||
+                              (isAfterMonthRow && d.date.day > 20)
+                          ? true
+                          : false)
+                      : false,
+                  dateTextColor: (d.date.weekday == 6 || d.date.weekday == 7)
+                      ? weekendTextColor
+                      : (isGreyOutBerforeToday &&
+                              d.date
+                                  .isBefore(DateTime(nw.year, nw.month, nw.day))
+                          ? Colors.grey
+                          : defaultTextColor),
+                  isSelectable:
+                      d.date.isBefore(DateTime(nw.year, nw.month, nw.day))
+                          ? false
+                          : true,
+                  selectedBoxShape: selectedCellBoxShape,
+                  selectedTextColor: selectedTextColor,
+                  selectedBorderColor: selectedBorderColor,
+                  selectedCenterColor: selectedCenterColor,
+                ),
+              ),
+            )
             .toList()
         : <Widget>[
             Expanded(
@@ -85,6 +91,7 @@ class CalendarRow extends StatelessWidget {
                         "월"
                     : dates.last.date.month.toString() + "월",
                 backgroundColor,
+                isSelectable: false,
                 isOnRowOfDates: isDateList,
               ),
             )
@@ -121,6 +128,7 @@ class CalendarHeaderRow extends CalendarRow {
                 child: CalendarRowCell(
                   headerMap[d.date.weekday],
                   backgroundColor,
+                  isSelectable: false,
                   isOnRowOfDates: false,
                   dateTextColor: d.date.weekday == 6 || d.date.weekday == 7
                       ? weekendTextColor
@@ -134,10 +142,11 @@ class CalendarHeaderRow extends CalendarRow {
   }
 }
 
-class CalendarRowCell extends StatelessWidget {
+class CalendarRowCell extends StatefulWidget {
   CalendarRowCell(
     this.text,
     this.backgroundColor, {
+    Key key,
     this.isDisable = false,
     this.isSelected = false,
     this.isOnRowOfDates = true,
@@ -148,7 +157,8 @@ class CalendarRowCell extends StatelessWidget {
     this.selectedCenterColor = Colors.blue,
     this.selectedTextColor = Colors.white,
     this.dateTextColor = defaultTextColor,
-  });
+    this.isSelectable = true,
+  }) : super(key: key);
 
   @required
   final String text;
@@ -164,53 +174,77 @@ class CalendarRowCell extends StatelessWidget {
   final Color selectedBorderColor;
   final Color selectedCenterColor;
   final Color selectedTextColor;
+  final bool isSelectable;
+
+  _CalendarRowCell createState() => _CalendarRowCell();
+}
+
+class _CalendarRowCell extends State<CalendarRowCell> {
   static const double paddingSelectedCircle = 5.0;
+  bool _isSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isSelected = widget.isSelected;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: double.infinity,
-      width: double.infinity,
-      child: isDisable
-          ? Container(
-              color: backgroundColor,
-            )
-          : Container(
-              padding: EdgeInsets.all(paddingSelectedCircle),
-              color: backgroundColor,
-              child: Container(
-                decoration: isOnRowOfDates
-                    ? BoxDecoration(
-                        border: Border.all(
-                          width: 1.0,
-                          color: isSelected
-                              ? selectedBorderColor
-                              : backgroundColor,
-                        ),
-                        color:
-                            isSelected ? selectedCenterColor : backgroundColor,
-                        shape: selectedBoxShape ?? selectedBoxShape,
-                        borderRadius: selectedBoxShape == BoxShape.rectangle
-                            ? BorderRadius.all(Radius.circular(
-                                selectedRectangleBoxShapeRadius))
-                            : null,
-                      )
-                    : BoxDecoration(
-                        color: backgroundColor,
-                      ),
-                alignment: Alignment.center,
+    return InkWell(
+      onTap: () {
+        setState(() => _isSelected =
+            widget.isSelectable ? !_isSelected : widget.isSelectable);
+      },
+      child: SizedBox(
+        height: double.infinity,
+        width: double.infinity,
+        child: widget.isDisable
+            ? Container(
+                color: widget.backgroundColor,
+              )
+            : Container(
+                padding: EdgeInsets.all(paddingSelectedCircle),
+                color: widget.backgroundColor,
                 child: Container(
-                  child: Text(
-                    text,
-                    style: TextStyle(
-                      color: isSelected ? selectedTextColor : dateTextColor,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                  decoration: widget.isOnRowOfDates
+                      ? BoxDecoration(
+                          border: Border.all(
+                            width: 1.0,
+                            color: _isSelected
+                                ? widget.selectedBorderColor
+                                : widget.backgroundColor,
+                          ),
+                          color: _isSelected
+                              ? widget.selectedCenterColor
+                              : widget.backgroundColor,
+                          shape: widget.selectedBoxShape ??
+                              widget.selectedBoxShape,
+                          borderRadius:
+                              widget.selectedBoxShape == BoxShape.rectangle
+                                  ? BorderRadius.all(Radius.circular(
+                                      widget.selectedRectangleBoxShapeRadius))
+                                  : null,
+                        )
+                      : BoxDecoration(
+                          color: widget.backgroundColor,
+                        ),
+                  alignment: Alignment.center,
+                  child: Container(
+                    child: Text(
+                      widget.text,
+                      style: TextStyle(
+                        color: _isSelected
+                            ? widget.selectedTextColor
+                            : widget.dateTextColor,
+                        fontWeight:
+                            _isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+      ),
     );
   }
 }

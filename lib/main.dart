@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         body: SingleChildScrollView(
           child: Calendar(
             5,
-            DateTime(2019, 11, 19),
+            DateTime(2019, 11, 17),
             selectedDates: List.generate(
                     3, (i) => DateTime(2019, 11, 19).add(Duration(days: 7 * i)))
                 .toList(),
@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
             weekendTextColor: Colors.red[200],
             isGreyOutBerforeToday: true,
             selectedCellBoxShape: BoxShape.circle,
+            calendarHeaderRowHeight: 30.0,
           ),
         ),
       ),
@@ -64,6 +65,7 @@ class Calendar extends StatelessWidget {
   final BoxShape selectedCellBoxShape;
   final double calendarRowHeight;
   final double calendarHeaderRowHeight;
+  static int minRowToShowMonth = 3;
 
   List<List<DateTime>> _getAllDates() {
     DateTime _lastSunday =
@@ -138,7 +140,7 @@ class Calendar extends StatelessWidget {
                           : false))
                   .toList(),
               isBeforeMonthRow:
-                  indices.keys.toList().indexWhere((idx) => idx == i) >= 0
+                  indices.containsKey(i) && nRows > minRowToShowMonth
                       ? true
                       : false,
               weekendTextColor: weekendTextColor,
@@ -152,7 +154,7 @@ class Calendar extends StatelessWidget {
     int duplicateCount = 0;
     indices.keys.toList().asMap().forEach(
           (i, k) => indices[k].forEach((month, isDuplicate) => {
-                if (nRows > 3)
+                if (nRows > minRowToShowMonth)
                   {
                     if (isDuplicate)
                       {
@@ -211,8 +213,11 @@ class Calendar extends StatelessWidget {
         backgroundColor: Colors.grey[300],
         weekendTextColor: weekendTextColor,
         rowHeight: calendarHeaderRowHeight,
+        isDateList: false,
       ),
     );
-    return nRows <= 3 ? rows.getRange(0, nRows + 1).toList() : rows;
+    return nRows <= minRowToShowMonth
+        ? rows.getRange(0, nRows + 1).toList()
+        : rows;
   }
 }
