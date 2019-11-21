@@ -30,9 +30,11 @@ class CalendarRow extends StatelessWidget {
   final Color selectedCenterColor;
   final Color selectedTextColor;
   final Color weekendTextColor;
+  List<Date> selectedDates;
 
   @override
   Widget build(BuildContext context) {
+    selectedDates = List.from(dates.where((e) => e.isSelected));
     return Container(
       height: rowHeight,
       width: double.infinity,
@@ -52,14 +54,18 @@ class CalendarRow extends StatelessWidget {
                   d.date.day.toString(),
                   backgroundColor,
                   isOnRowOfDates: isDateList,
-                  isSelected: d.isSelected && (d.date.isAtSameMomentAs(DateTime(nw.year, nw.month, nw.day)) || d.date.isAfter(DateTime(nw.year, nw.month, nw.day))),
+                  isSelected: d.isSelected &&
+                      (d.date.isAtSameMomentAs(
+                              DateTime(nw.year, nw.month, nw.day)) ||
+                          d.date.isAfter(DateTime(nw.year, nw.month, nw.day))),
                   isDisable: (isBeforeMonthRow || isAfterMonthRow)
                       ? ((isBeforeMonthRow && d.date.day < 10) ||
                               (isAfterMonthRow && d.date.day > 20)
                           ? true
                           : false)
                       : false,
-                  dateTextColor: (d.date.weekday == 6 || d.date.weekday == 7)
+                  dateTextColor: (d.date.weekday == 6 || d.date.weekday == 7) &&
+                          (weekendTextColor != defaultTextColor)
                       ? weekendTextColor
                       : (isGreyOutBerforeToday &&
                               d.date
@@ -74,6 +80,10 @@ class CalendarRow extends StatelessWidget {
                   selectedTextColor: selectedTextColor,
                   selectedBorderColor: selectedBorderColor,
                   selectedCenterColor: selectedCenterColor,
+                  date: d.date,
+                  onDateSelectedCallback: (DateTime dateFromCell) {
+                    selectedDates.forEach((e) => print(e.date));
+                  },
                 ),
               ),
             )
@@ -147,6 +157,7 @@ class CalendarRowCell extends StatefulWidget {
     this.text,
     this.backgroundColor, {
     Key key,
+    this.date,
     this.isDisable = false,
     this.isSelected = false,
     this.isOnRowOfDates = true,
@@ -158,12 +169,14 @@ class CalendarRowCell extends StatefulWidget {
     this.selectedTextColor = Colors.white,
     this.dateTextColor = defaultTextColor,
     this.isSelectable = true,
+    this.onDateSelectedCallback,
   }) : super(key: key);
 
   @required
   final String text;
   @required
   final Color backgroundColor;
+  final DateTime date;
   final bool isDisable;
   final bool isSelected;
   final bool isOnRowOfDates;
@@ -175,6 +188,9 @@ class CalendarRowCell extends StatefulWidget {
   final Color selectedCenterColor;
   final Color selectedTextColor;
   final bool isSelectable;
+  final Function(DateTime) onDateSelectedCallback;
+  //final VoidCallback onDateSelectedCallback;
+  //final onDateSelectedCallback;
 
   _CalendarRowCell createState() => _CalendarRowCell();
 }
@@ -193,8 +209,13 @@ class _CalendarRowCell extends State<CalendarRowCell> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        setState(() => _isSelected =
-            widget.isSelectable ? !_isSelected : widget.isSelectable);
+        setState(
+          () {
+            _isSelected =
+                widget.isSelectable ? !_isSelected : widget.isSelectable;
+            widget.onDateSelectedCallback(widget.date ?? widget.date);
+          },
+        );
       },
       child: SizedBox(
         height: double.infinity,

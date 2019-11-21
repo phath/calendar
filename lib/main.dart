@@ -18,15 +18,15 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: Text("calendar")),
         body: SingleChildScrollView(
           child: Calendar(
-            20,
-            DateTime(2019, 10, 17),
+            5,
+            DateTime(2019, 11, 17),
             selectedDates: List.generate(
                     3, (i) => DateTime(2019, 11, 19).add(Duration(days: 7 * i)))
                 .toList(),
             isStartDate: false,
             padding: 5.0,
             border: 0.0,
-            weekendTextColor: Colors.red[200],
+            //weekendTextColor: Colors.red[200],
             isGreyOutBerforeToday: true,
             selectedCellBoxShape: BoxShape.circle,
             selectedCenterColor: Colors.blue[200],
@@ -47,7 +47,7 @@ class Calendar extends StatelessWidget {
     this.padding = 0.0,
     this.isStartDate = false,
     this.headerMap = koreanHeaderMap,
-    this.weekendTextColor = Colors.grey,
+    this.weekendTextColor = defaultTextColor,
     this.isGreyOutBerforeToday = false,
     this.selectedCellBoxShape = BoxShape.circle,
     this.calendarRowHeight = 50.0,
