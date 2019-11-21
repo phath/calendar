@@ -16,6 +16,7 @@ class CalendarRow extends StatelessWidget {
     this.selectedTextColor = Colors.white,
     this.selectedCenterColor = Colors.blue,
     this.selectedBorderColor = Colors.blue,
+    this.onDateSelectedCallbackRow,
   });
   @required
   final List<Date> dates;
@@ -30,11 +31,11 @@ class CalendarRow extends StatelessWidget {
   final Color selectedCenterColor;
   final Color selectedTextColor;
   final Color weekendTextColor;
-  List<Date> selectedDates;
+  List<DateTime> selectedDates;
+  final Function(DateTime, int) onDateSelectedCallbackRow;
 
   @override
   Widget build(BuildContext context) {
-    selectedDates = List.from(dates.where((e) => e.isSelected));
     return Container(
       height: rowHeight,
       width: double.infinity,
@@ -54,10 +55,11 @@ class CalendarRow extends StatelessWidget {
                   d.date.day.toString(),
                   backgroundColor,
                   isOnRowOfDates: isDateList,
-                  isSelected: d.isSelected &&
-                      (d.date.isAtSameMomentAs(
-                              DateTime(nw.year, nw.month, nw.day)) ||
-                          d.date.isAfter(DateTime(nw.year, nw.month, nw.day))),
+                  //isSelected: d.isSelected &&
+                  //    (d.date.isAtSameMomentAs(
+                  //            DateTime(nw.year, nw.month, nw.day)) ||
+                  //        d.date.isAfter(DateTime(nw.year, nw.month, nw.day))),
+                  isSelected: d.isSelected,
                   isDisable: (isBeforeMonthRow || isAfterMonthRow)
                       ? ((isBeforeMonthRow && d.date.day < 10) ||
                               (isAfterMonthRow && d.date.day > 20)
@@ -72,17 +74,18 @@ class CalendarRow extends StatelessWidget {
                                   .isBefore(DateTime(nw.year, nw.month, nw.day))
                           ? Colors.grey
                           : defaultTextColor),
-                  isSelectable:
-                      d.date.isBefore(DateTime(nw.year, nw.month, nw.day))
-                          ? false
-                          : true,
+                  isSelectable: isGreyOutBerforeToday &&
+                          d.date.isBefore(DateTime(nw.year, nw.month, nw.day))
+                      ? false
+                      : true,
                   selectedBoxShape: selectedCellBoxShape,
                   selectedTextColor: selectedTextColor,
                   selectedBorderColor: selectedBorderColor,
                   selectedCenterColor: selectedCenterColor,
                   date: d.date,
-                  onDateSelectedCallback: (DateTime dateFromCell) {
-                    selectedDates.forEach((e) => print(e.date));
+                  onDateSelectedCallback:
+                      (DateTime dateFromCell, int addOrRemove) {
+                    onDateSelectedCallbackRow(dateFromCell, addOrRemove);
                   },
                 ),
               ),
@@ -188,7 +191,7 @@ class CalendarRowCell extends StatefulWidget {
   final Color selectedCenterColor;
   final Color selectedTextColor;
   final bool isSelectable;
-  final Function(DateTime) onDateSelectedCallback;
+  final Function(DateTime, int) onDateSelectedCallback;
   //final VoidCallback onDateSelectedCallback;
   //final onDateSelectedCallback;
 
@@ -213,7 +216,8 @@ class _CalendarRowCell extends State<CalendarRowCell> {
           () {
             _isSelected =
                 widget.isSelectable ? !_isSelected : widget.isSelectable;
-            widget.onDateSelectedCallback(widget.date ?? widget.date);
+            widget.onDateSelectedCallback(
+                widget.date ?? widget.date, _isSelected ? -1 : 1);
           },
         );
       },

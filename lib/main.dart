@@ -26,7 +26,6 @@ class MyApp extends StatelessWidget {
             isStartDate: false,
             padding: 5.0,
             border: 0.0,
-            //weekendTextColor: Colors.red[200],
             isGreyOutBerforeToday: true,
             selectedCellBoxShape: BoxShape.circle,
             selectedCenterColor: Colors.blue[200],
@@ -54,6 +53,7 @@ class Calendar extends StatelessWidget {
     this.calendarHeaderRowHeight = 50.0,
     this.selectedCenterColor = Colors.blue,
     this.selectedBorderColor = Colors.blue,
+    this.onCalendarDateSelected,
   });
   @required
   final int nRows;
@@ -70,6 +70,7 @@ class Calendar extends StatelessWidget {
   final double calendarHeaderRowHeight;
   final Color selectedCenterColor;
   final Color selectedBorderColor;
+  final VoidCallback onCalendarDateSelected;
   static int minRowToShowMonth = 3;
 
   List<List<DateTime>> _getAllDates() {
@@ -137,24 +138,34 @@ class Calendar extends StatelessWidget {
           (i, l) => MapEntry(
             i,
             CalendarRow(
-              l
-                  .map((d) => Date(
-                      d,
-                      selectedDates.indexWhere((e) => d.isAtSameMomentAs(e)) >=
-                              0
-                          ? true
-                          : false))
-                  .toList(),
-              isBeforeMonthRow:
-                  indices.containsKey(i) && nRows > minRowToShowMonth
-                      ? true
-                      : false,
-              weekendTextColor: weekendTextColor,
-              isGreyOutBerforeToday: isGreyOutBerforeToday,
-              selectedCellBoxShape: selectedCellBoxShape,
-              selectedCenterColor: selectedCenterColor,
-              selectedBorderColor: selectedBorderColor,
-            ),
+                l
+                    .map((d) => Date(
+                        d,
+                        selectedDates
+                                    .indexWhere((e) => d.isAtSameMomentAs(e)) >=
+                                0
+                            ? true
+                            : false))
+                    .toList(),
+                isBeforeMonthRow:
+                    indices.containsKey(i) && nRows > minRowToShowMonth
+                        ? true
+                        : false,
+                weekendTextColor: weekendTextColor,
+                isGreyOutBerforeToday: isGreyOutBerforeToday,
+                selectedCellBoxShape: selectedCellBoxShape,
+                selectedCenterColor: selectedCenterColor,
+                selectedBorderColor: selectedBorderColor,
+                onDateSelectedCallbackRow:
+                    (DateTime dateFromRow, int addOrRemove) {
+              addOrRemove < 0
+                  ? selectedDates.add(dateFromRow)
+                  : selectedDates.removeWhere(
+                      (e) => e.isAtSameMomentAs(dateFromRow),
+                    );
+
+              print(selectedDates);
+            }),
           ),
         )
         .values
@@ -170,17 +181,27 @@ class Calendar extends StatelessWidget {
                         rows.insert(
                           k + duplicateCount,
                           CalendarRow(
-                              listDates
-                                  .elementAt(k)
-                                  .map((d) => Date(d, false))
-                                  .toList(),
-                              isDateList: true,
-                              isAfterMonthRow: true,
-                              isGreyOutBerforeToday: isGreyOutBerforeToday,
-                              selectedCellBoxShape: selectedCellBoxShape,
-                              selectedCenterColor: selectedCenterColor,
-                              selectedBorderColor: selectedBorderColor,
-                              weekendTextColor: weekendTextColor),
+                            listDates
+                                .elementAt(k)
+                                .map((d) => Date(d, false))
+                                .toList(),
+                            isDateList: true,
+                            isAfterMonthRow: true,
+                            isGreyOutBerforeToday: isGreyOutBerforeToday,
+                            selectedCellBoxShape: selectedCellBoxShape,
+                            selectedCenterColor: selectedCenterColor,
+                            selectedBorderColor: selectedBorderColor,
+                            weekendTextColor: weekendTextColor,
+                            onDateSelectedCallbackRow:
+                                (DateTime dateFromRow, int addOrRemove) {
+                              addOrRemove < 0
+                                  ? selectedDates.add(dateFromRow)
+                                  : selectedDates.removeWhere(
+                                      (e) => e.isAtSameMomentAs(dateFromRow),
+                                    );
+                              print(selectedDates);
+                            },
+                          ),
                         ),
                         rows.insert(
                           k + duplicateCount,
@@ -204,17 +225,18 @@ class Calendar extends StatelessWidget {
                         rows.insert(
                           k + duplicateCount,
                           CalendarRow(
-                              listDates
-                                  .elementAt(k)
-                                  .map((d) => Date(d, false))
-                                  .toList(),
-                              isDateList: false,
-                              isAfterMonthRow: false,
-                              weekendTextColor: weekendTextColor,
-                              isGreyOutBerforeToday: isGreyOutBerforeToday,
-                              selectedCenterColor: selectedCenterColor,
-                              selectedBorderColor: selectedBorderColor,
-                              selectedCellBoxShape: selectedCellBoxShape),
+                            listDates
+                                .elementAt(k)
+                                .map((d) => Date(d, false))
+                                .toList(),
+                            isDateList: false,
+                            isAfterMonthRow: false,
+                            weekendTextColor: weekendTextColor,
+                            isGreyOutBerforeToday: isGreyOutBerforeToday,
+                            selectedCenterColor: selectedCenterColor,
+                            selectedBorderColor: selectedBorderColor,
+                            selectedCellBoxShape: selectedCellBoxShape,
+                          ),
                         ),
                       }
                   }
