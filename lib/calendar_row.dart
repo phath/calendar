@@ -52,7 +52,7 @@ class CalendarRow extends StatelessWidget {
                   d.date.day.toString(),
                   backgroundColor,
                   isOnRowOfDates: isDateList,
-                  isSelected: d.isSelected,
+                  isSelected: d.isSelected && (d.date.isAtSameMomentAs(DateTime(nw.year, nw.month, nw.day)) || d.date.isAfter(DateTime(nw.year, nw.month, nw.day))),
                   isDisable: (isBeforeMonthRow || isAfterMonthRow)
                       ? ((isBeforeMonthRow && d.date.day < 10) ||
                               (isAfterMonthRow && d.date.day > 20)

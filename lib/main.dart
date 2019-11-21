@@ -18,8 +18,8 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: Text("calendar")),
         body: SingleChildScrollView(
           child: Calendar(
-            5,
-            DateTime(2019, 11, 17),
+            20,
+            DateTime(2019, 10, 17),
             selectedDates: List.generate(
                     3, (i) => DateTime(2019, 11, 19).add(Duration(days: 7 * i)))
                 .toList(),
@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
             weekendTextColor: Colors.red[200],
             isGreyOutBerforeToday: true,
             selectedCellBoxShape: BoxShape.circle,
+            selectedCenterColor: Colors.blue[200],
             calendarHeaderRowHeight: 30.0,
           ),
         ),
@@ -51,6 +52,8 @@ class Calendar extends StatelessWidget {
     this.selectedCellBoxShape = BoxShape.circle,
     this.calendarRowHeight = 50.0,
     this.calendarHeaderRowHeight = 50.0,
+    this.selectedCenterColor = Colors.blue,
+    this.selectedBorderColor = Colors.blue,
   });
   @required
   final int nRows;
@@ -65,6 +68,8 @@ class Calendar extends StatelessWidget {
   final BoxShape selectedCellBoxShape;
   final double calendarRowHeight;
   final double calendarHeaderRowHeight;
+  final Color selectedCenterColor;
+  final Color selectedBorderColor;
   static int minRowToShowMonth = 3;
 
   List<List<DateTime>> _getAllDates() {
@@ -123,6 +128,7 @@ class Calendar extends StatelessWidget {
   }
 
   List<Widget> _convertAllDates2CalendarRowWidget() {
+    DateTime nw = DateTime.now();
     List<List<DateTime>> listDates = _getAllDates();
     Map<int, Map<int, bool>> indices = _getIndicesForMonthRow(listDates);
     List<Widget> rows = listDates
@@ -146,6 +152,8 @@ class Calendar extends StatelessWidget {
               weekendTextColor: weekendTextColor,
               isGreyOutBerforeToday: isGreyOutBerforeToday,
               selectedCellBoxShape: selectedCellBoxShape,
+              selectedCenterColor: selectedCenterColor,
+              selectedBorderColor: selectedBorderColor,
             ),
           ),
         )
@@ -170,6 +178,8 @@ class Calendar extends StatelessWidget {
                               isAfterMonthRow: true,
                               isGreyOutBerforeToday: isGreyOutBerforeToday,
                               selectedCellBoxShape: selectedCellBoxShape,
+                              selectedCenterColor: selectedCenterColor,
+                              selectedBorderColor: selectedBorderColor,
                               weekendTextColor: weekendTextColor),
                         ),
                         rows.insert(
@@ -179,9 +189,11 @@ class Calendar extends StatelessWidget {
                                   .elementAt(k)
                                   .map((d) => Date(d, false))
                                   .toList(),
+                              isDateList: false,
                               isGreyOutBerforeToday: isGreyOutBerforeToday,
                               selectedCellBoxShape: selectedCellBoxShape,
-                              isDateList: false,
+                              selectedCenterColor: selectedCenterColor,
+                              selectedBorderColor: selectedBorderColor,
                               weekendTextColor: weekendTextColor),
                         ),
                         duplicateCount += 1,
@@ -197,10 +209,12 @@ class Calendar extends StatelessWidget {
                                   .map((d) => Date(d, false))
                                   .toList(),
                               isDateList: false,
+                              isAfterMonthRow: false,
                               weekendTextColor: weekendTextColor,
                               isGreyOutBerforeToday: isGreyOutBerforeToday,
-                              selectedCellBoxShape: selectedCellBoxShape,
-                              isAfterMonthRow: false),
+                              selectedCenterColor: selectedCenterColor,
+                              selectedBorderColor: selectedBorderColor,
+                              selectedCellBoxShape: selectedCellBoxShape),
                         ),
                       }
                   }
