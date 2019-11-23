@@ -30,6 +30,9 @@ class MyApp extends StatelessWidget {
             selectedCellBoxShape: BoxShape.circle,
             selectedCenterColor: Colors.blue[200],
             calendarHeaderRowHeight: 30.0,
+            onCalendarDateSelected: (List<DateTime> selectedDates) {
+              print(selectedDates);
+            },
           ),
         ),
       ),
@@ -57,6 +60,7 @@ class Calendar extends StatelessWidget {
   });
   @required
   final int nRows;
+  @required
   final DateTime startDate;
   final bool isStartDate;
   final bool isGreyOutBerforeToday;
@@ -70,23 +74,23 @@ class Calendar extends StatelessWidget {
   final double calendarHeaderRowHeight;
   final Color selectedCenterColor;
   final Color selectedBorderColor;
-  final VoidCallback onCalendarDateSelected;
+  @required
+  final Function(List<DateTime>) onCalendarDateSelected;
   static int minRowToShowMonth = 3;
 
   List<List<DateTime>> _getAllDates() {
     DateTime _lastSunday =
         !isStartDate ? _lookForLastMonday(startDate) : startDate;
-    List<DateTime> dates = List.generate(7 * nRows, (int index) => index)
+    List<DateTime> _dates = List.generate(7 * nRows, (int index) => index)
         .map(
           (ele) => _lastSunday.add(
             Duration(days: ele),
           ),
         )
         .toList();
-    List<List<DateTime>> listDates = List.generate(nRows, (int index) => index)
-        .map((ele) => dates.getRange(ele * 7, (ele + 1) * 7).toList())
+    return List.generate(nRows, (int index) => index)
+        .map((ele) => _dates.getRange(ele * 7, (ele + 1) * 7).toList())
         .toList();
-    return listDates;
   }
 
   DateTime _lookForLastMonday(DateTime date) {
@@ -128,6 +132,15 @@ class Calendar extends StatelessWidget {
     return indices;
   }
 
+  void _addOrRemoveSelectedDates(DateTime dateFromRow, int addOrRemove) {
+    addOrRemove < 0
+        ? selectedDates.add(dateFromRow)
+        : selectedDates.removeWhere(
+            (e) => e.isAtSameMomentAs(dateFromRow),
+          );
+    onCalendarDateSelected(selectedDates);
+  }
+
   List<Widget> _convertAllDates2CalendarRowWidget() {
     DateTime nw = DateTime.now();
     List<List<DateTime>> listDates = _getAllDates();
@@ -138,34 +151,28 @@ class Calendar extends StatelessWidget {
           (i, l) => MapEntry(
             i,
             CalendarRow(
-                l
-                    .map((d) => Date(
-                        d,
-                        selectedDates
-                                    .indexWhere((e) => d.isAtSameMomentAs(e)) >=
-                                0
-                            ? true
-                            : false))
-                    .toList(),
-                isBeforeMonthRow:
-                    indices.containsKey(i) && nRows > minRowToShowMonth
-                        ? true
-                        : false,
-                weekendTextColor: weekendTextColor,
-                isGreyOutBerforeToday: isGreyOutBerforeToday,
-                selectedCellBoxShape: selectedCellBoxShape,
-                selectedCenterColor: selectedCenterColor,
-                selectedBorderColor: selectedBorderColor,
-                onDateSelectedCallbackRow:
-                    (DateTime dateFromRow, int addOrRemove) {
-              addOrRemove < 0
-                  ? selectedDates.add(dateFromRow)
-                  : selectedDates.removeWhere(
-                      (e) => e.isAtSameMomentAs(dateFromRow),
-                    );
-
-              print(selectedDates);
-            }),
+              l
+                  .map((d) => Date(
+                      d,
+                      selectedDates.indexWhere((e) => d.isAtSameMomentAs(e)) >=
+                              0
+                          ? true
+                          : false))
+                  .toList(),
+              isBeforeMonthRow:
+                  indices.containsKey(i) && nRows > minRowToShowMonth
+                      ? true
+                      : false,
+              weekendTextColor: weekendTextColor,
+              isGreyOutBerforeToday: isGreyOutBerforeToday,
+              selectedCellBoxShape: selectedCellBoxShape,
+              selectedCenterColor: selectedCenterColor,
+              selectedBorderColor: selectedBorderColor,
+              onDateSelectedCallbackRow:
+                  (DateTime dateFromRow, int addOrRemove) {
+                _addOrRemoveSelectedDates(dateFromRow, addOrRemove);
+              },
+            ),
           ),
         )
         .values
@@ -194,12 +201,8 @@ class Calendar extends StatelessWidget {
                             weekendTextColor: weekendTextColor,
                             onDateSelectedCallbackRow:
                                 (DateTime dateFromRow, int addOrRemove) {
-                              addOrRemove < 0
-                                  ? selectedDates.add(dateFromRow)
-                                  : selectedDates.removeWhere(
-                                      (e) => e.isAtSameMomentAs(dateFromRow),
-                                    );
-                              print(selectedDates);
+                              _addOrRemoveSelectedDates(
+                                  dateFromRow, addOrRemove);
                             },
                           ),
                         ),
