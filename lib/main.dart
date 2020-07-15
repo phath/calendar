@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
           child: Calendar(
             20,
             DateTime(2020, 07, 01),
-            selectedDates: List.generate(100,
+            selectedDates: List.generate(10,
                     (i) => DateTime(2020, 07, 06).add(Duration(days: 2 * i)))
                 .toList(),
             isStartDate: false,
@@ -30,8 +30,11 @@ class MyApp extends StatelessWidget {
             selectedCellBoxShape: BoxShape.circle,
             selectedCenterColor: Colors.blue[200],
             calendarHeaderRowHeight: 30.0,
-            onCalendarDateSelected: (List<DateTime> selectedDates) {
+            onCalendarDateSelected:
+                (List<DateTime> selectedDates, DateTime touchedDate) {
+              //(DateTime touchedDate) {
               print(selectedDates);
+              print(touchedDate);
             },
           ),
         ),
@@ -75,7 +78,7 @@ class Calendar extends StatelessWidget {
   final Color selectedCenterColor;
   final Color selectedBorderColor;
   @required
-  final Function(List<DateTime>) onCalendarDateSelected;
+  final Function(List<DateTime>, DateTime) onCalendarDateSelected;
   static int minRowToShowMonth = 3;
 
   List<List<DateTime>> _getAllDates() {
@@ -138,7 +141,7 @@ class Calendar extends StatelessWidget {
         : selectedDates.removeWhere(
             (e) => e.isAtSameMomentAs(dateFromRow),
           );
-    onCalendarDateSelected(selectedDates);
+    onCalendarDateSelected(selectedDates, dateFromRow);
   }
 
   List<Widget> _convertAllDates2CalendarRowWidget() {

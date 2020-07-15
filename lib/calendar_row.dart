@@ -74,10 +74,12 @@ class CalendarRow extends StatelessWidget {
                                   .isBefore(DateTime(nw.year, nw.month, nw.day))
                           ? Colors.grey
                           : defaultTextColor),
-                  isSelectable: isGreyOutBerforeToday &&
-                          d.date.isBefore(DateTime(nw.year, nw.month, nw.day))
-                      ? false
-                      : true,
+                  isSelectable: //isGreyOutBerforeToday &&
+                      d.isSelected &&
+                              d.date
+                                  .isBefore(DateTime(nw.year, nw.month, nw.day))
+                          ? false
+                          : true,
                   selectedBoxShape: selectedCellBoxShape,
                   selectedTextColor: selectedTextColor,
                   selectedBorderColor: selectedBorderColor,
@@ -175,7 +177,7 @@ class CalendarRowCell extends StatefulWidget {
     this.selectedCenterColor = Colors.blue,
     this.selectedTextColor = Colors.white,
     this.dateTextColor = defaultTextColor,
-    this.isSelectable = true,
+    this.isSelectable = false,
     this.onDateSelectedCallback,
   }) : super(key: key);
 
@@ -214,11 +216,11 @@ class _CalendarRowCell extends State<CalendarRowCell> {
 
   @override
   Widget build(BuildContext context) {
-    //return
     return InkWell(
       onTap: () {
         setState(
           () {
+            // uncomment or comment this to change the color on the calendar
             _isSelected =
                 widget.isSelectable ? !_isSelected : widget.isSelectable;
             widget.onDateSelectedCallback(
