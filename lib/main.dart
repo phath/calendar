@@ -10,18 +10,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Subscription',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        appBar: AppBar(title: Text("calendar")),
+        appBar: AppBar(title: Text("subscription")),
         body: SingleChildScrollView(
           child: Calendar(
-            5,
-            DateTime(2019, 11, 17),
-            selectedDates: List.generate(
-                    3, (i) => DateTime(2019, 11, 19).add(Duration(days: 7 * i)))
+            20,
+            DateTime(2020, 07, 01),
+            selectedDates: List.generate(100,
+                    (i) => DateTime(2020, 07, 06).add(Duration(days: 2 * i)))
                 .toList(),
             isStartDate: false,
             padding: 5.0,
@@ -190,7 +190,13 @@ class Calendar extends StatelessWidget {
                           CalendarRow(
                             listDates
                                 .elementAt(k)
-                                .map((d) => Date(d, false))
+                                .map((d) => Date(
+                                    d,
+                                    selectedDates.indexWhere(
+                                                (e) => d.isAtSameMomentAs(e)) >=
+                                            0
+                                        ? true
+                                        : false))
                                 .toList(),
                             isDateList: true,
                             isAfterMonthRow: true,

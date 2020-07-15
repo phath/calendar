@@ -55,11 +55,11 @@ class CalendarRow extends StatelessWidget {
                   d.date.day.toString(),
                   backgroundColor,
                   isOnRowOfDates: isDateList,
-                  //isSelected: d.isSelected &&
-                  //    (d.date.isAtSameMomentAs(
-                  //            DateTime(nw.year, nw.month, nw.day)) ||
-                  //        d.date.isAfter(DateTime(nw.year, nw.month, nw.day))),
-                  isSelected: d.isSelected,
+                  isSelected: d.isSelected &&
+                      (d.date.isAtSameMomentAs(
+                              DateTime(nw.year, nw.month, nw.day)) ||
+                          d.date.isAfter(DateTime(nw.year, nw.month, nw.day))),
+                  //isSelected: d.isSelected, //|| isAfterMonthRow,
                   isDisable: (isBeforeMonthRow || isAfterMonthRow)
                       ? ((isBeforeMonthRow && d.date.day < 10) ||
                               (isAfterMonthRow && d.date.day > 20)
@@ -106,6 +106,8 @@ class CalendarRow extends StatelessWidget {
                 backgroundColor,
                 isSelectable: false,
                 isOnRowOfDates: isDateList,
+                onDateSelectedCallback:
+                    (DateTime dateFromCell, int addOrRemove) {},
               ),
             )
           ];
@@ -120,6 +122,7 @@ class CalendarHeaderRow extends CalendarRow {
     this.rowHeight = 50.0,
     this.weekendTextColor = defaultTextColor,
     this.headerMap = koreanHeaderMap,
+    this.onDateSelectedCallbackRow,
   }) : super(dates);
   @required
   final List<Date> dates;
@@ -127,6 +130,7 @@ class CalendarHeaderRow extends CalendarRow {
   final bool isDateList;
   final double rowHeight;
   final Color weekendTextColor;
+  final Function(DateTime, int) onDateSelectedCallbackRow;
   final Map<int, String> headerMap;
 
   @override
@@ -210,6 +214,7 @@ class _CalendarRowCell extends State<CalendarRowCell> {
 
   @override
   Widget build(BuildContext context) {
+    //return
     return InkWell(
       onTap: () {
         setState(
